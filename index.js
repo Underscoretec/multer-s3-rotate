@@ -189,7 +189,6 @@ S3Storage.prototype._handleFile = function (req, file, cb) {
       var metadata= await sharpStreamed.toBuffer({
         resolveWithObject: true,
       })
-      console.log('image',metadata)
 
 
       let newParams = {

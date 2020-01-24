@@ -4,7 +4,7 @@
   "description": "Extended multer-s3 and rotating image using EXIF orientation.",
   "main": "index.js",
   "scripts": {
-    "test": "standard && mocha test/basic.js"
+    "test": "mocha test/basic.js"
   },
   "repository": {
     "type": "git",
