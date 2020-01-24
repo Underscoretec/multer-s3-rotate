@@ -1,6 +1,6 @@
 {
   "name": "multer-s3-rotate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extended multer-s3 and rotating image using EXIF orientation.",
   "main": "index.js",
   "scripts": {
