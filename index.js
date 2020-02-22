@@ -13,7 +13,7 @@ function staticValue (value) {
 
 var defaultAcl = staticValue('private')
 var defaultContentType = staticValue('application/octet-stream')
-
+var defaultResize= false
 var defaultMetadata = staticValue(null)
 var defaultCacheControl = staticValue(null)
 var defaultContentDisposition = staticValue(null)
@@ -59,7 +59,9 @@ function collect (storage, req, file, cb) {
     storage.getContentDisposition.bind(storage, req, file),
     storage.getStorageClass.bind(storage, req, file),
     storage.getSSE.bind(storage, req, file),
-    storage.getSSEKMS.bind(storage, req, file)
+    storage.getSSEKMS.bind(storage, req, file),
+    storage.getResize.bind(storage, req, file),
+    storage.getResizeOpts.bind(storage, req, file)
   ], function (err, values) {
     if (err) return cb(err)
 
@@ -77,7 +79,9 @@ function collect (storage, req, file, cb) {
         contentType: contentType,
         replacementStream: replacementStream,
         serverSideEncryption: values[7],
-        sseKmsKeyId: values[8]
+        sseKmsKeyId: values[8],
+        resize:values[9],
+        resizeOpts:values[10]
       })
     })
   })
@@ -135,6 +139,22 @@ function S3Storage (opts) {
     default: throw new TypeError('Expected opts.contentDisposition to be undefined, string or function')
   }
 
+  switch (typeof opts.resize) {
+    case 'boolean': this.getResize = staticValue(opts.resize); break
+    case 'undefined': this.getResize = defaultResize; break
+    default: throw new TypeError('Expected opts.resize to be undefined or boolean')
+  }
+console.log(">>>>>>>>>>>>>>>>>>>>>>>>>",opts)
+  if(opts.resize)
+  {
+    switch (typeof opts.resizeOpts) {
+      case 'object': this.getResizeOpts = staticValue(opts.resizeOpts); break
+      case 'undefined': throw new TypeError('Expected opts.resize to be undefined or boolean')
+      default: throw new TypeError('Expected opts.resize to be an object')
+    }
+  }
+
+
   switch (typeof opts.storageClass) {
     case 'function': this.getStorageClass = opts.storageClass; break
     case 'string': this.getStorageClass = staticValue(opts.storageClass); break
@@ -182,8 +202,11 @@ S3Storage.prototype._handleFile = function (req, file, cb) {
     if(file.mimetype.includes('image'))
     {
 
-      var imageStream= sharp().rotate();
-     
+      var imageStream= sharp().rotate()
+
+      if(opts.resize)
+      imageStream = imageStream.resize(opts.resizeOpts);
+      // {imageStream = imageStream
       var sharpStreamed = file.stream.pipe(imageStream)
 
       var metadata= await sharpStreamed.toBuffer({
