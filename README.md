@@ -54,7 +54,7 @@ var upload = multer({
   storage: multerS3({
     s3: s3,
     bucket: 'some-bucket',
-    resize: true // default false,
+    resize: true, // default false
     resizeOpts: { // Required if resize is true
       width: 400,
       height:400,
