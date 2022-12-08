@@ -49,20 +49,35 @@ function autoContentType (req, file, cb) {
   })
 }
 
-function collect (storage, req, file, cb) {
-  parallel([
+function collect(storage, req, file, cb) {
+  var arr = [
     storage.getBucket.bind(storage, req, file),
     storage.getKey.bind(storage, req, file),
     storage.getAcl.bind(storage, req, file),
     storage.getMetadata.bind(storage, req, file),
-    storage.getCacheControl.bind(storage, req, file),
-    storage.getContentDisposition.bind(storage, req, file),
-    storage.getStorageClass.bind(storage, req, file),
-    storage.getSSE.bind(storage, req, file),
-    storage.getSSEKMS.bind(storage, req, file),
-    storage.getResize.bind(storage, req, file),
-    storage.getResizeOpts.bind(storage, req, file)
-  ], function (err, values) {
+    storage.getCacheControl.bind(storage, req, file)
+  ]
+  if (storage.getContentDisposition) {
+    storage.getContentDisposition.bind(storage, req, file)
+  }
+  if (storage.getStorageClass) {
+    storage.getStorageClass.bind(storage, req, file)
+  }
+  if (storage.getSSE) {
+    storage.getSSE.bind(storage, req, file)
+  }
+  if (storage.getSSEKMS) {
+    storage.getSSEKMS.bind(storage, req, file)
+  }
+  if (storage.getResize) {
+    storage.getResize.bind(storage, req, file)
+  }
+  if (storage.getResizeOpts) {
+    arr.push(storage.getResizeOpts.bind(storage, req, file))
+  } else {
+    arr
+  }
+  parallel(arr, function (err, values) {
     if (err) return cb(err)
 
     storage.getContentType(req, file, function (err, contentType, replacementStream) {
