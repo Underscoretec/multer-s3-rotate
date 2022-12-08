@@ -29,7 +29,7 @@
     "file-type": "^3.3.0",
     "is-svg": "^2.1.0",
     "run-parallel": "^1.1.6",
-    "sharp": "^0.24.0"
+    "sharp": "^0.30.5"
   },
   "devDependencies": {
     "aws-sdk": "^2.2.32",
